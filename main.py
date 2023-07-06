@@ -6,6 +6,8 @@ from sklearn.metrics import mean_squared_error, r2_score
 import matplotlib.pyplot as plt
 import tensorflow as tf
 import numpy as np
+from imblearn.over_sampling import SMOTE
+
 
 
 # Ingesting the csv dataset
@@ -41,7 +43,7 @@ dataFrame.info()
 def randomForestRegressor():
     # Create an instance of the Random Forest Regressor
         # Each decision tree has a maximun depth of 7, at each split only 3 features are considered, and there are 100 variants of decision trees
-    rf_regressor =RandomForestRegressor(max_depth=7 , max_features=3,n_estimators= 100)
+    rf_regressor = RandomForestRegressor(max_depth=7 , max_features=3,n_estimators= 100)
 
     # Train the model on the training data
     rf_regressor.fit(X_train, y_train)
@@ -70,9 +72,9 @@ def randomForestRegressor():
     plt.legend(["Actual" , "Predicted"])
     plt.show()
 
-# randomForestRegressor()
+#randomForestRegressor()
 
-def tensorFlowAdam():
+def tensorFlowAdam(y_test):
     # Set seed incase I want to reproduce this
     tf.random.set_seed(42)
 
@@ -84,12 +86,33 @@ def tensorFlowAdam():
     ])
 
     # Compile the model
-    model.compile(loss=tf.keras.losses.mae,
+    model.compile(loss=tf.keras.losses.MeanSquaredError(),
                 optimizer=tf.keras.optimizers.Adam(),
-                metrics=["mae"])
+                metrics=[tf.keras.metrics.MeanAbsoluteError()])
 
     # Fit the model
-    history = model.fit(X_train, y_train, epochs=100)
+    history = model.fit(X_train, y_train, epochs=100, batch_size = 32)
+
+    # Evaluate the model
+    evaluation = model.evaluate(X_test, y_test)
+    mae = evaluation[1]
+    mse = evaluation[0]
+    
+
+    # Flatten the arrays to ensure they are 1-dimensional
+    y_test = np.ravel(y_test)
+    y_pred = np.ravel(model.predict(X_test))
+
+    # Calculate R-squared score manually
+    y_pred = model.predict(X_test)
+    ssr = np.sum((y_test - y_pred) ** 2)
+    sst = np.sum((y_test - np.mean(y_test)) ** 2)
+    r2 = 1 - (ssr / sst)
+
+    print("Mean Absolute Error:", mae)
+    print("Mean Squared Error:", mse)
+    print("R-squared Score:", r2)
+
 
     # Making prediction
     prediction = model.predict(X_test)
@@ -110,4 +133,61 @@ def tensorFlowAdam():
     plt.show()
 
 
-tensorFlowAdam()
+tensorFlowAdam(y_test)
+
+def tensorFlowAdagrad(y_test):
+    # Set seed in case you want to reproduce the results
+    tf.random.set_seed(42)
+
+    # Create a model
+    model = tf.keras.Sequential([
+            tf.keras.layers.Dense(100, activation='relu'),
+            tf.keras.layers.Dense(10, activation='relu'),
+            tf.keras.layers.Dense(1),
+    ])
+
+    # Compile the model with Adagrad optimizer
+    model.compile(loss=tf.keras.losses.MeanSquaredError(),
+                optimizer=tf.keras.optimizers.Adagrad(),
+                metrics=[tf.keras.metrics.MeanAbsoluteError()])
+
+    # Fit the model
+    history = model.fit(X_train, y_train, epochs=100, batch_size=32)
+
+    # Evaluate the model
+    evaluation = model.evaluate(X_test, y_test)
+    mae = evaluation[1]
+    mse = evaluation[0]
+
+    # Flatten the arrays to ensure they are 1-dimensional
+    y_test = np.ravel(y_test)
+    y_pred = np.ravel(model.predict(X_test))
+
+    # Calculate R-squared score manually
+    ssr = np.sum((y_test - y_pred) ** 2)
+    sst = np.sum((y_test - np.mean(y_test)) ** 2)
+    r2 = 1 - (ssr / sst)
+
+    print("Mean Absolute Error:", mae)
+    print("Mean Squared Error:", mse)
+    print("R-squared Score:", r2)
+
+    # Making prediction
+    prediction = model.predict(X_test)
+
+    # Flattening to a 1D array so it can be plotted
+    prediction = np.ravel(prediction)
+
+    # Prepare data for plot
+    df_final = pd.DataFrame({"Y_test": y_test , "Prediction" : prediction})
+
+    # Sort index before plot
+    df_final = df_final.sort_index()
+
+    # Plot the final result
+    plt.figure(figsize=(10, 5))
+    plt.plot(df_final)
+    plt.legend(["Actual" , "Prediction"])
+    plt.show()
+
+#tensorFlowAdagrad(y_test)
