@@ -35,7 +35,8 @@ y = dataFrame["salary_in_usd"]
 
 # Build train and test sets
     # It is important to note that stratification is not possible, however oversampling the minority/undersampling the majority class can be done to make it possible
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+# X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
 dataFrame.info()
 
@@ -43,7 +44,7 @@ dataFrame.info()
 def randomForestRegressor():
     # Create an instance of the Random Forest Regressor
         # Each decision tree has a maximun depth of 7, at each split only 3 features are considered, and there are 100 variants of decision trees
-    rf_regressor = RandomForestRegressor(max_depth=7 , max_features=3,n_estimators= 100)
+    rf_regressor = RandomForestRegressor(max_depth=3 , max_features=2,n_estimators= 100)
 
     # Train the model on the training data
     rf_regressor.fit(X_train, y_train)
@@ -72,7 +73,7 @@ def randomForestRegressor():
     plt.legend(["Actual" , "Predicted"])
     plt.show()
 
-#randomForestRegressor()
+randomForestRegressor()
 
 def tensorFlowAdam(y_test):
     # Set seed incase I want to reproduce this
@@ -133,7 +134,7 @@ def tensorFlowAdam(y_test):
     plt.show()
 
 
-tensorFlowAdam(y_test)
+#tensorFlowAdam(y_test)
 
 def tensorFlowAdagrad(y_test):
     # Set seed in case you want to reproduce the results
