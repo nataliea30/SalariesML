@@ -36,33 +36,37 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_
 
 dataFrame.info()
 
-# Create an instance of the Random Forest Regressor
-    #Each decision tree has a maximun depth of 7, at each split only 3 features are considered, and there are 100 variants of decision trees
-rf_regressor =RandomForestRegressor(max_depth=7 , max_features=3,n_estimators= 100)
 
-# Train the model on the training data
-rf_regressor.fit(X_train, y_train)
+def randomForestRegressor():
+    # Create an instance of the Random Forest Regressor
+        #Each decision tree has a maximun depth of 7, at each split only 3 features are considered, and there are 100 variants of decision trees
+    rf_regressor =RandomForestRegressor(max_depth=7 , max_features=3,n_estimators= 100)
 
-# Make predictions on the testing data
-y_pred = rf_regressor.predict(X_test)
+    # Train the model on the training data
+    rf_regressor.fit(X_train, y_train)
 
-# Evaluate the model's performance
-mse = mean_squared_error(y_test, y_pred)
-r2 = r2_score(y_test, y_pred)
+    # Make predictions on the testing data
+    y_pred = rf_regressor.predict(X_test)
 
-print("Mean Squared Error:", mse)
-print("R-squared Score:", r2)
-print("Accuracy:", rf_regressor.score(X_train, y_train))
+    # Evaluate the model's performance
+    mse = mean_squared_error(y_test, y_pred)
+    r2 = r2_score(y_test, y_pred)
 
-# Displaying the results in a chart
-y_pred = rf_regressor.predict(X_test)
-df3 = pd.DataFrame({"Y_test": y_test , "Y_pred" : y_pred})
-df3 = df3.reset_index(drop=True)
-print(df3.head(20))
+    print("Mean Squared Error:", mse)
+    print("R-squared Score:", r2)
+    print("Accuracy:", rf_regressor.score(X_train, y_train))
 
-# Plotting results on a graph
-plt.figure(figsize= (20,6))
+    # Displaying the results in a chart
+    y_pred = rf_regressor.predict(X_test)
+    df3 = pd.DataFrame({"Y_test": y_test , "Y_pred" : y_pred})
+    df3 = df3.reset_index(drop=True)
+    print(df3.head(20))
 
-plt.plot(df3[:500])
-plt.legend(["Actual" , "Predicted"])
-plt.show()
+    # Plotting results on a graph
+    plt.figure(figsize= (20,6))
+
+    plt.plot(df3[:500])
+    plt.legend(["Actual" , "Predicted"])
+    plt.show()
+
+randomForestRegressor()
