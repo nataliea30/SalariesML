@@ -3,8 +3,9 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_squared_error, r2_score
-from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
+import tensorflow as tf
+import numpy as np
 
 
 # Ingesting the csv dataset
@@ -31,7 +32,7 @@ X = dataFrame.drop(["salary_in_usd"], axis=1).values
 y = dataFrame["salary_in_usd"]
 
 # Build train and test sets
-    # It is important to note that stratification is not possible, however oversampling the minority/undersampling the majority class can be done
+    # It is important to note that stratification is not possible, however oversampling the minority/undersampling the majority class can be done to make it possible
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
 dataFrame.info()
@@ -39,7 +40,7 @@ dataFrame.info()
 
 def randomForestRegressor():
     # Create an instance of the Random Forest Regressor
-        #Each decision tree has a maximun depth of 7, at each split only 3 features are considered, and there are 100 variants of decision trees
+        # Each decision tree has a maximun depth of 7, at each split only 3 features are considered, and there are 100 variants of decision trees
     rf_regressor =RandomForestRegressor(max_depth=7 , max_features=3,n_estimators= 100)
 
     # Train the model on the training data
@@ -69,4 +70,44 @@ def randomForestRegressor():
     plt.legend(["Actual" , "Predicted"])
     plt.show()
 
-randomForestRegressor()
+# randomForestRegressor()
+
+def tensorFlowAdam():
+    # Set seed incase I want to reproduce this
+    tf.random.set_seed(42)
+
+    # Create a model
+    model = tf.keras.Sequential([
+            tf.keras.layers.Dense(100, activation='relu'),
+            tf.keras.layers.Dense(10, activation='relu'),
+            tf.keras.layers.Dense(1),
+    ])
+
+    # Compile the model
+    model.compile(loss=tf.keras.losses.mae,
+                optimizer=tf.keras.optimizers.Adam(),
+                metrics=["mae"])
+
+    # Fit the model
+    history = model.fit(X_train, y_train, epochs=100)
+
+    # Making prediction
+    prediction = model.predict(X_test)
+
+    # Flattening to a 1D array so it can be plotted
+    prediction = np.ravel(prediction)
+
+    # Prepare data for plot
+    df_final = pd.DataFrame({"Y_test": y_test , "Prediction" : prediction})
+
+    # Sort index before plot
+    df_final = df_final.sort_index()
+
+    # Plot the final result
+    plt.figure(figsize= (10,5))
+    plt.plot(df_final)
+    plt.legend(["Actual" , "Prediction"])
+    plt.show()
+
+
+tensorFlowAdam()
